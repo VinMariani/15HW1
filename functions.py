@@ -8,7 +8,7 @@ con.close()
 
 
 #def one_animal(itemid):
-    '''вывод одного животного по ID'''
+    #'''вывод одного животного по ID'''
     #con = sqlite3.connect('animal.db')
     #sqlite_query = "SELECT 'name' FROM animal "
     #cur = con.cursor()
