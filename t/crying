@@ -1,0 +1,124 @@
+select *               --выбираем уникальные цвета из 2 столбцов таблицы animals
+from (select distinct replace(color1, " ", "")
+      from animals
+      union
+      select distinct replace(color2, " ", "")
+      from animals
+      where color2 is not null);
+
+----------------------------------------------
+
+create table colors --создаем промежуточную таблицу colors
+(
+    id   integer primary key autoincrement,
+    name varchar(30)
+);
+
+----------------------------------------------
+
+create table animal_colors --создаем таблицу animal_colors для связки животного по цвету
+(
+    animal_id integer,
+    color_id  integer
+);
+
+----------------------------------------------
+
+insert into animal_colors --заполняем таблицу animal_colors
+select animals."index", --значениями из столбца index таблицы animals и
+       colors.name      --значениями из столбца name таблицы colors
+from animals
+join colors on rtrim(animals.color1)=rtrim(colors.name); --объединяем значения из таблиц
+
+---------------------------------------------
+
+insert into animal_colors --заполняем таблицу animal_colors
+select animals."index", --значениями из столбца index таблицы animals и
+       colors.name      --значениями из столбца name таблицы colors
+from animals
+join colors on rtrim(animals.color2)=rtrim(colors.name); --объединяем значения из таблиц
+
+---------------------------------------------
+drop table outcomes;
+
+create table outcomes --создаем таблицу outcomes
+(
+    outcome_id   integer primary key autoincrement,
+    outcome_type varchar(100),
+    outcome_subtype varchar(100),
+    outcome_month integer,
+    outcome_year integer,
+    age_upon_outcome varchar(100),
+    animal_id varchar(15)
+);
+
+-------------------------------------------
+
+alter table outcomes add age_upon_outcome varchar(100); -- забыла добавить столбик age_upon_outcome в таблицу outcomes при создании
+alter table outcomes add animal_id varchar(100);
+-------------------------------------------
+
+insert into outcomes(animal_id, outcome_subtype, outcome_type, age_upon_outcome, outcome_month, outcome_year)  -- в эти столбцы
+select  distinct animal_id, outcome_subtype, outcome_type, age_upon_outcome, outcome_month, outcome_year       -- добавляем значения
+from animals; --из этой таблицы
+
+-------------------------------------------
+
+insert into outcomes(animal_id)              -- в эти столбцы
+select  distinct animal_id                   -- добавляем значения
+from animals; --из этой таблицы
+
+-------------------------------------------
+
+create table animal_types (                  -- создаем таблицу типов животных
+    id   integer primary key autoincrement,
+    name varchar(100)
+);
+
+-------------------------------------------
+
+insert into animal_types(name)              -- добавляем в таблицу animal_types столбец name
+select distinct (animal_type)               -- данные из таблицы animals столбец animal_type
+from animals;
+
+-------------------------------------------
+create table breeds (                  -- создаем таблицу пород животных
+    id   integer primary key autoincrement,
+    name varchar(100)
+);
+
+-------------------------------------------
+
+insert into breeds(name)                  -- добавляем в таблицу breeds столбец name
+select distinct (breed)                   -- данные из таблицы animals столбец breed
+from animals;
+
+-------------------------------------------
+
+create table unique_animal (                  -- создаем финальную таблицу для уникального животного
+    id integer primary key autoincrement,
+    animal_id varchar(15),
+    type_id integer,
+    name varchar(100),
+    date_of_birth varchar(20),
+    breed_id integer
+);
+
+-------------------------------------------
+
+insert into unique_animal(animal_id, type_id, name, date_of_birth, breed_id)         -- добавляем в таблицу unique_animal указанные столбцы
+select distinct animal_id, animal_types.id, animals.name, date_of_birth, breeds.id   -- откуда взять данные для заполнения (таблица.столбик)                                                -- данные из таблицы animals столбцы
+from animals
+left join animal_types on animal_type=animal_types.name                              --объединяем таблицы для добавления данных
+left join breeds on animals.breed=breeds.name;                                       --объединяем таблицы для добавления данных
+
+-------------------------------------------
+
+select *
+from outcomes
+left join unique_animal on outcomes.animal_id=unique_animal.id;
+
+select *
+from unique_animal
+left join outcomes on outcomes.animal_id=outcomes.animal_id
+where unique_animal.id = {itemid};
