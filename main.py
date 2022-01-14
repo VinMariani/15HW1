@@ -27,7 +27,7 @@ def animal_id_page(itemid):
     con.close()
     return result_animals
     # return jsonify(result_animals)
-
+9
 
 @app.route("/animal/<name>")  # страничка вывода одного животного по имени
 def animal_name_page(name):
