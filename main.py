@@ -14,7 +14,7 @@ def animal_id_page(itemid):
                 left join outcomes on outcomes.animal_id=outcomes.animal_id
                 where unique_animal.id = {itemid}"""
     cur.execute(query)
-    animals = cur.fetchall()
+    animals = cur.fetchone()
 
     result_animals = {
         "Result": animals[0],
