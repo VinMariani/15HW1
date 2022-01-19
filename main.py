@@ -10,11 +10,11 @@ def animal_id_page(itemid):
     con = sqlite3.connect('animal.db')
     cur = con.cursor()
     query = f"""select * 
-                from unique_animal
-                left join outcomes on outcomes.animal_id=outcomes.animal_id
-                where unique_animal.id = {itemid}"""
+                from unique_animal ua
+                left join outcomes on outcomes.animal_id=ua.animal_id
+                where ua.id = {itemid}"""
     cur.execute(query)
-    animals = cur.fetchone()
+    animals = cur.fetchall()
 
     result_animals = {
         "Result": animals[0],
@@ -25,7 +25,6 @@ def animal_id_page(itemid):
     }
 
     con.close()
-    #return result_animals
     return jsonify(result_animals)
 
 
@@ -33,25 +32,26 @@ def animal_id_page(itemid):
 def animal_name_page(name):
     con = sqlite3.connect('animal.db')
     cur = con.cursor()
-    name = request.args.get("name")
-    query = f"""select * 
-                from unique_animal
-                left join outcomes on outcomes.animal_id=outcomes.animal_id
-                where unique_animal.name = '{name}'"""
+    query = f"""select ua.animal_id, ua.name, ua.date_of_birth
+                from unique_animal ua
+                left join outcomes on outcomes.animal_id=ua.animal_id
+                where ua.name = '{name}' limit 10"""
     cur.execute(query)
     animals = cur.fetchall()
-
-    result_animals = {
-        "Result 1": animals[0],
-        "Result 2": animals[1],
-        "Result 3": animals[2],
-        "Result 4": animals[3],
-        "Result 5": animals[4]
-    }
-
+    if len(animals)>0:
+        result_animals = []
+        for animal in animals:
+            result_animals.append({
+                'animal_id': animal[0],
+                'name': name[1],
+                'date_of_birth': name[2]
+            })
+    else:
+        result_animals = {
+            'result': '0'
+        }
     con.close()
-    return result_animals
-    # return jsonify(result_animals)
+    return jsonify(result_animals)
 
 
 app.run()
